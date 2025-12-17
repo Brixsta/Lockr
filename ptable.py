@@ -2,9 +2,9 @@ from tkinter import ttk
 import utils
 
 class ProcessTable:
-    def __init__(self, root, process_name_title):
+    def __init__(self, root, process_selected_name):
         self.root = root
-        self.process_name_title = process_name_title
+        self.process_selected_name = process_selected_name
         self.create_table()
         self.current_selected = [1, "undefined"]
 
@@ -32,7 +32,7 @@ class ProcessTable:
         self.set_current_selected(pid, process_name)
 
         # Change title on select
-        self.process_name_title.config(text=f"{process_name}")
+        self.process_selected_name.config(text=f"{process_name}")
 
 
     def get_current_selected(self):
