@@ -32,7 +32,7 @@ class ProcessTable:
         self.set_current_selected(pid, process_name)
 
         # Change title on select
-        self.process_selected_name.config(text=f"{process_name}")
+        self.process_selected_name.configure(text=f"Process Name: {process_name}")
 
 
     def get_current_selected(self):
