@@ -114,30 +114,102 @@ class LockrGUI:
         # Create process_selected_name
         self.process_selected_name = ctk.CTkLabel(
             self.process_selected_frame,
-            text="",
-            font=("Helvetica", 18)
+            text=f"{utils.processes[0][1]}",
+            font=("Helvetica", 22, "bold")
         )
         self.process_selected_name.grid(column=1, row=1)
 
         # Create process_table
         self.process_table = ptable.ProcessTable(self.process_table_frame, self.process_selected_name)
 
-        # Create lock_buttons
-        self.lock_duration = ctk.StringVar(value="30M")
 
-        self.lock_buttons = ctk.CTkSegmentedButton(
+        # Store lock_buttons in lock_button_list
+        self.lock_buttons_list = []
+
+        # Create one_hour_lock_button
+        self.one_hour_lock_button = ctk.CTkButton(
             self.lock_buttons_frame,
-            values=[" .5HR ", " 1HR ", " 2HR ", " 4HR ", " 8HR ", " Custom "],
-            variable=self.lock_duration,
-            fg_color="#EAEAEA",
-            font=("Helvetica", 18, "bold"),
+            text="1 Hour",
             text_color="#1F2937",
-            unselected_color="#F0F0F0",
-            unselected_hover_color="#DADADA",
-            selected_hover_color="#DADADA",
-            selected_color="#DADADA",
+            fg_color="#DADADA",
+            hover_color="#DADADA",
+            border_width=1,
+            border_color="#C0C0C0",
+            cursor="hand2",
+            font=("Helvetica", 16, "bold"),
+            height=50,
+            command= lambda : utils.toggle_lock_buttons(self.one_hour_lock_button, self.lock_buttons_list)
         )
-        self.lock_buttons.pack()
+        self.one_hour_lock_button.pack(fill="x", pady=10)
+        self.lock_buttons_list.append(self.one_hour_lock_button)
+
+        # Create two_hour_lock_button
+        self.two_hour_lock_button = ctk.CTkButton(
+            self.lock_buttons_frame,
+            text="2 Hours",
+            text_color="#1F2937",
+            fg_color="#F0F0F0",
+            hover_color="#DADADA",
+            border_width=1,
+            border_color="#C0C0C0",
+            cursor="hand2",
+            font=("Helvetica", 16, "bold"),
+            height=50,
+            command=lambda: utils.toggle_lock_buttons(self.two_hour_lock_button, self.lock_buttons_list)
+        )
+        self.two_hour_lock_button.pack(fill="x", pady=10)
+        self.lock_buttons_list.append(self.two_hour_lock_button)
+
+        # Create three_hour_lock_button
+        self.four_hour_lock_button = ctk.CTkButton(
+            self.lock_buttons_frame,
+            text="4 Hours",
+            text_color="#1F2937",
+            fg_color="#F0F0F0",
+            hover_color="#DADADA",
+            border_width=1,
+            border_color="#C0C0C0",
+            cursor="hand2",
+            font=("Helvetica", 16, "bold"),
+            height=50,
+            command=lambda: utils.toggle_lock_buttons(self.four_hour_lock_button, self.lock_buttons_list)
+        )
+        self.four_hour_lock_button.pack(fill="x", pady=10)
+        self.lock_buttons_list.append(self.four_hour_lock_button)
+
+        # Create eight_hour_lock_button
+        self.eight_hour_lock_button = ctk.CTkButton(
+            self.lock_buttons_frame,
+            text="8 Hours",
+            text_color="#1F2937",
+            fg_color="#F0F0F0",
+            hover_color="#DADADA",
+            border_width=1,
+            border_color="#C0C0C0",
+            cursor="hand2",
+            font=("Helvetica", 16, "bold"),
+            height=50,
+            command=lambda: utils.toggle_lock_buttons(self.eight_hour_lock_button, self.lock_buttons_list)
+        )
+        self.eight_hour_lock_button.pack(fill="x", pady=10)
+        self.lock_buttons_list.append(self.eight_hour_lock_button)
+
+        # Create custom_lock_button
+        self.custom_lock_button = ctk.CTkButton(
+            self.lock_buttons_frame,
+            text="Custom",
+            text_color="#1F2937",
+            fg_color="#F0F0F0",
+            hover_color="#DADADA",
+            border_width=1,
+            border_color="#C0C0C0",
+            cursor="hand2",
+            font=("Helvetica", 16, "bold"),
+            height=50,
+            command=lambda: utils.toggle_lock_buttons(self.custom_lock_button, self.lock_buttons_list)
+        )
+        self.custom_lock_button.pack(fill="x", pady=10)
+        self.lock_buttons_list.append(self.custom_lock_button)
 
         # Create confirm_lock_button
         self.confirm_lock_button = ctk.CTkButton(
@@ -145,7 +217,11 @@ class LockrGUI:
             text="Lock",
             font=("Helvetica", 16, "bold"),
             height=44,
-            corner_radius=8
+            corner_radius=8,
+            cursor="hand2",
+            text_color="white",
+            fg_color="red",
+            hover_color="red"
         )
         self.confirm_lock_button.pack(pady=10)
 
