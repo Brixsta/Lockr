@@ -22,6 +22,48 @@ class ProcessTable:
         # Bind select event to handle_select
         self.ptable.bind("<<TreeviewSelect>>", self.handle_select)
 
+        # Create ptable_style
+        self.ptable_style = ttk.Style()
+
+        # Style rows
+        self.ptable_style.configure(
+            "Treeview",
+            background="#F9FAFB",
+            foreground="black",
+            rowheight=28,
+            fieldbackground="#F9FAFB",
+            font=("Helvetica", 10)
+        )
+
+        # Create ptable_header_style
+        self.ptable_header_style = ttk.Style()
+
+        # Style table headers
+        self.ptable_header_style.configure(
+            "Treeview.Heading",
+            background="#D0E4F7",     # header background color
+            foreground="black",     # text color
+            font=("Helvetica", 12),  # font and weight
+            relief="raised"           # optional: 'flat', 'raised', 'sunken'
+        )
+
+        self.ptable_style.map(
+            "Treeview.Heading",
+            background=[("active", "#B0D4F1")]  # when hovering over header
+        )
+
+        # Alternate row colors
+        self.ptable.tag_configure("odd", background="white")
+        self.ptable.tag_configure("even", background="#EBF5FF")
+
+        for index, item_id in enumerate(self.ptable.get_children()):
+            if index % 2 == 0:
+                tag = "even"
+            else:
+                tag = "odd"
+
+            self.ptable.item(item_id, tags=(tag,))
+
     def handle_select(self, event):
         selected_item = event.widget.focus()
         item_values = event.widget.item(selected_item)['values']

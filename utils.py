@@ -4,17 +4,24 @@ import tkinter.messagebox as messagebox
 
 processes = []
 
+# Gather processes excluding certain names
 for proc in psutil.process_iter(['pid', 'name']):
-    if len(proc.info['name']) and proc.info['name'] not in excluded.windows and proc.info['name'] not in excluded.mac:
+    if len(proc.info['name']) and proc.info['name'] not in excluded.OS:
         processes.append([proc.info['pid'], proc.info['name']])
 
-def toggle_processes(button1, button2):
-    button1.configure(fg_color="#DADADA")
-    button2.configure(fg_color="#F0F0F0")
+# Dictionary to track locked processes
+locked_processes = {
 
-def toggle_websites(button1, button2):
-    button2.configure(fg_color="#DADADA")
-    button1.configure(fg_color="#F0F0F0")
+}
+
+# ----------------- Button toggle helpers -----------------
+def toggle_processes(processes_button, websites_button):
+    processes_button.configure(fg_color="#DADADA")
+    websites_button.configure(fg_color="#F0F0F0")
+
+def toggle_websites(processes_button, websites_button):
+    processes_button.configure(fg_color="#F0F0F0")
+    websites_button.configure(fg_color="#DADADA")
 
 def toggle_lock_buttons(current_button, lock_buttons_list):
 
@@ -26,7 +33,7 @@ def toggle_lock_buttons(current_button, lock_buttons_list):
     current_button.configure(fg_color = "#DADADA")
 
 def handle_confirm_lock_click(lock_buttons_list, process_selected_name):
-    process_name = process_selected_name.cget("text")
+    lock_text = (process_selected_name.cget("text"))[13:]
     process_time = ""
     lock_duration_hours = 0
 
@@ -41,13 +48,20 @@ def handle_confirm_lock_click(lock_buttons_list, process_selected_name):
             lock_duration_hours= int("".join(c for c in process_time if c.isdigit()))
 
             # Create user prompt to confirm
-            create_prompt(f"Are you sure you want to lock{process_name[13:]} for {process_time}?")
+            create_prompt(f"Are you sure you want to lock{lock_text} for {process_time}?")
 
+
+# ----------------- Message box helpers -----------------
 def create_prompt(prompt_message):
     result = messagebox.askyesno(
         title="Confirm",
         message=prompt_message
     )
 
+# ----------------- Tick / Scheduler -----------------
+def kill_locked():
+    print("Finding the locked processes and killing them")
 
-
+def tick(root):
+    kill_locked()
+    root.after(1000,tick, root)

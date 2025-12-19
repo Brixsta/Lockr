@@ -1,4 +1,7 @@
-windows = {
+# Common Operating System processes to be excluded
+
+OS = {
+    # Windows
     "system",
     "system idle process",
     "smss.exe",
@@ -19,9 +22,8 @@ windows = {
     "System",
     "Registry",
     "System Idle Process"
-}
-
-mac = {
+    
+    # Mac
     "kernel_task",
     "launchd",
     "syslogd",
