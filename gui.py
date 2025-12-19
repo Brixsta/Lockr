@@ -1,8 +1,9 @@
 import tkinter as tk
-import ptable
+import ProcessTable
 import utils
 from tkinter import ttk
 import customtkinter as ctk
+
 
 class LockrGUI:
     def __init__(self, root):
@@ -21,8 +22,7 @@ class LockrGUI:
         # Specify how big the window is
         self.root.geometry(f"{screen_width}x{screen_height}")
 
-    def create_frames (self):
-
+    def create_frames(self):
         # Create header_frame
         self.header_frame = tk.Frame(self.root, bg="#EAEAEA")
         self.header_frame.pack(fill="x", ipady=10)
@@ -49,10 +49,10 @@ class LockrGUI:
 
         # Create lock_actions_frame
         self.lock_actions_frame = tk.Frame(self.right_main_frame, bg="#EAEAEA")
-        self.lock_actions_frame.pack(fill="both", expand=True, padx=(0,20), pady=20)
+        self.lock_actions_frame.pack(fill="both", expand=True, padx=(0, 20), pady=20)
 
         # Create process_selected_frame
-        self.process_selected_frame = tk.Frame(self.lock_actions_frame,bg="#EAEAEA")
+        self.process_selected_frame = tk.Frame(self.lock_actions_frame, bg="#EAEAEA")
         self.process_selected_frame.pack(fill="x", ipadx=10, ipady=10)
 
         # Create lock_buttons_frame
@@ -75,12 +75,10 @@ class LockrGUI:
         self.process_selected_frame.columnconfigure(2, weight=1)
 
         # Configure lock_buttons_frame
-        self.lock_buttons_frame.columnconfigure(0,weight=1)
+        self.lock_buttons_frame.columnconfigure(0, weight=1)
         self.lock_buttons_frame.columnconfigure(6, weight=1)
 
-
     def create_widgets(self):
-
         # Create processes_button
         self.processes_button = ctk.CTkButton(
             self.mode_buttons_frame,
@@ -92,7 +90,7 @@ class LockrGUI:
             border_color="#C0C0C0",
             cursor="hand2",
             font=("Helvetica", 14),
-            command= lambda: utils.toggle_processes(self.processes_button, self.websites_button)
+            command=lambda: utils.toggle_processes(self.processes_button, self.websites_button)
         )
         self.processes_button.grid(column=1, row=0, padx=10)
 
@@ -107,7 +105,7 @@ class LockrGUI:
             border_color="#C0C0C0",
             cursor="hand2",
             font=("Helvetica", 14),
-            command= lambda: utils.toggle_websites(self.processes_button, self.websites_button)
+            command=lambda: utils.toggle_websites(self.processes_button, self.websites_button)
         )
         self.websites_button.grid(column=2, row=0, padx=10)
 
@@ -120,8 +118,7 @@ class LockrGUI:
         self.process_selected_name.grid(column=1, row=1)
 
         # Create process_table
-        self.process_table = ptable.ProcessTable(self.process_table_frame, self.process_selected_name)
-
+        self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.process_selected_name)
 
         # Store lock_buttons in lock_button_list
         self.lock_buttons_list = []
@@ -138,7 +135,7 @@ class LockrGUI:
             cursor="hand2",
             font=("Helvetica", 16, "bold"),
             height=50,
-            command= lambda : utils.toggle_lock_buttons(self.one_hour_lock_button, self.lock_buttons_list)
+            command=lambda: utils.toggle_lock_buttons(self.one_hour_lock_button, self.lock_buttons_list)
         )
         self.one_hour_lock_button.pack(fill="x", pady=10)
         self.lock_buttons_list.append(self.one_hour_lock_button)
@@ -222,8 +219,6 @@ class LockrGUI:
             text_color="white",
             fg_color="red",
             hover_color="red",
-            command = lambda : utils.handle_confirm_lock_click(self.lock_buttons_list, self.process_selected_name)
+            command=lambda: utils.handle_confirm_lock_click(self.lock_buttons_list, self.process_table)
         )
         self.confirm_lock_button.pack(pady=10)
-
-

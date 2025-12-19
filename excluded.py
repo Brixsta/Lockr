@@ -1,5 +1,4 @@
-# Common Operating System processes to be excluded
-
+# Set of common Operating System processes to be excluded
 OS = {
     # Windows
     "system",
@@ -22,7 +21,7 @@ OS = {
     "System",
     "Registry",
     "System Idle Process"
-    
+
     # Mac
     "kernel_task",
     "launchd",
