@@ -4,12 +4,12 @@ import utils
 import customtkinter as ctk
 
 
-class LockrGUI:
+class GUI:
     def __init__(self, root):
         self.root = root
-
         self.root.title("Lockr")
 
+        # Construct GUI
         self.create_frames()
         self.configure_frames()
         self.create_widgets()
@@ -31,7 +31,7 @@ class LockrGUI:
         self.mode_buttons_frame.pack(fill="x")
 
         # Create main_frame
-        self.main_frame = tk.Frame(self.root)
+        self.main_frame = tk.Frame(self.root, bg="#EAEAEA")
         self.main_frame.pack(fill="both", expand=True)
 
         # Create left_main_frame
@@ -39,7 +39,7 @@ class LockrGUI:
         self.left_main_frame.place(relx=0, rely=0, relwidth=.5, relheight=1)
 
         # Create process_table_frame
-        self.process_table_frame = tk.Frame(self.left_main_frame, bg="Orange")
+        self.process_table_frame = tk.Frame(self.left_main_frame)
         self.process_table_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Create right_main_frame
@@ -50,28 +50,32 @@ class LockrGUI:
         self.lock_actions_frame = tk.Frame(self.right_main_frame, bg="#EAEAEA")
         self.lock_actions_frame.pack(fill="both", expand=True, padx=(0, 20), pady=20)
 
-        # Create process_selected_frame
-        self.process_selected_frame = tk.Frame(self.lock_actions_frame, bg="#EAEAEA")
-        self.process_selected_frame.pack(fill="x", ipadx=10, ipady=10)
+        # Create selected_process_frame
+        self.selected_process_frame = tk.Frame(self.lock_actions_frame, bg="#EAEAEA")
+        self.selected_process_frame.pack(fill="x", ipadx=10, ipady=10)
+
+        # Create selected_process_status_frame
+        self.selected_process_status_frame = tk.Frame(self.lock_actions_frame, bg="#EAEAEA")
+        self.selected_process_status_frame.pack(fill="x")
 
         # Create lock_buttons_frame
         self.lock_buttons_frame = tk.Frame(self.lock_actions_frame, bg="#EAEAEA")
         self.lock_buttons_frame.pack(fill="x")
 
-        # Create confirm_lock_frame
-        self.confirm_lock_frame = tk.Frame(self.lock_actions_frame, bg="#EAEAEA")
-        self.confirm_lock_frame.pack(fill="x")
+        # Create activate_lock_frame
+        self.activate_lock_frame = tk.Frame(self.lock_actions_frame, bg="#EAEAEA")
+        self.activate_lock_frame.pack(fill="x")
 
     def configure_frames(self):
         # Configure mode_buttons_frame
         self.mode_buttons_frame.columnconfigure(0, weight=1)
         self.mode_buttons_frame.columnconfigure(3, weight=1)
 
-        # Configure process_selected_frame
-        self.process_selected_frame.rowconfigure(0, weight=1)
-        self.process_selected_frame.rowconfigure(2, weight=1)
-        self.process_selected_frame.columnconfigure(0, weight=1)
-        self.process_selected_frame.columnconfigure(2, weight=1)
+        # Configure selected_process_frame
+        self.selected_process_frame.rowconfigure(0, weight=1)
+        self.selected_process_frame.rowconfigure(2, weight=1)
+        self.selected_process_frame.columnconfigure(0, weight=1)
+        self.selected_process_frame.columnconfigure(2, weight=1)
 
         # Configure lock_buttons_frame
         self.lock_buttons_frame.columnconfigure(0, weight=1)
@@ -111,14 +115,23 @@ class LockrGUI:
         # Create selected_process_name_label
         first_process_name = utils.processes[0][1]
         self.selected_process_name_label = ctk.CTkLabel(
-            self.process_selected_frame,
+            self.selected_process_frame,
             text=f"Process Name: {first_process_name}",
             font=("Helvetica", 22, "bold")
         )
         self.selected_process_name_label.grid(column=1, row=1)
 
+        # Create selected_process_status_label
+        self.selected_process_status_label = ctk.CTkLabel(
+            self.selected_process_status_frame,
+            text="RUNNING",
+            font=("Helvetica", 12, "bold"),
+            text_color="Green",
+        )
+        self.selected_process_status_label.pack()
+
         # Create process_table
-        self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.selected_process_name_label)
+        self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.selected_process_name_label, self.selected_process_status_label)
 
         # Store lock_buttons in lock_button_list
         self.lock_buttons_list = []
@@ -210,7 +223,7 @@ class LockrGUI:
 
         # Create confirm_lock_button
         self.confirm_lock_button = ctk.CTkButton(
-            self.confirm_lock_frame,
+            self.activate_lock_frame,
             text="Lock",
             font=("Helvetica", 16, "bold"),
             height=44,

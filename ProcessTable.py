@@ -3,7 +3,7 @@ import utils
 
 
 class ProcessTable:
-    def __init__(self, root, selected_process_name_label):
+    def __init__(self, root, selected_process_name_label, selected_process_status_label):
         # Instantiate the Process Table
         self.root = root
         self.create_table()
@@ -13,9 +13,13 @@ class ProcessTable:
         self.selected_row_id
         self.selected_pid
         self.selected_process_name
+        self.selected_process_status
 
         # Label for the selected_process
         self.selected_process_name_label = selected_process_name_label
+
+        # Label for the status of the selected_process
+        self.selected_process_status_label = selected_process_status_label
 
     def create_table(self):
         # Create process_table
@@ -40,6 +44,7 @@ class ProcessTable:
         self.selected_row_id = first_row
         self.selected_pid = pid
         self.selected_process_name = process_name
+        self.selected_process_status = "RUNNING"
 
     def style_table(self):
         self.style_rows()
@@ -81,10 +86,10 @@ class ProcessTable:
         # Style table headers
         self.process_table_header_style.configure(
             "Treeview.Heading",
-            background="#D0E4F7",  # header background color
-            foreground="black",  # text color
-            font=("Helvetica", 12),  # font and weight
-            relief="raised"  # optional: 'flat', 'raised', 'sunken'
+            background="#D0E4F7",
+            foreground="black",
+            font=("Helvetica", 12),
+            relief="raised"
         )
 
         # Styles when hovering over the headers
@@ -99,11 +104,28 @@ class ProcessTable:
         item_values = event.widget.item(selected_row_id)['values']
         pid = item_values[0]
         process_name = item_values[1]
+        tags = self.process_table.item(selected_row_id)['tags']
+        status = ""
+
+        if "even" in tags or "odd" in tags:
+            status = "RUNNING"
+        else:
+            status = "LOCKED"
 
         # Store values of selected row
         self.selected_row_id = selected_row_id
         self.selected_pid = pid
         self.selected_process_name = process_name
+        self.selected_process_status = status
 
         # Update selected_process_name_label
         self.selected_process_name_label.configure(text=f"Process Name: {process_name}")
+
+        # Update selected_process_status_label
+        self.selected_process_status_label.configure(text=f"{status}")
+
+        # Change text color of selected_process_status_label
+        if(status == "LOCKED"):
+            self.selected_process_status_label.configure(text_color="red")
+        else:
+            self.selected_process_status_label.configure(text_color="green")
