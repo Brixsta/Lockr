@@ -1,7 +1,6 @@
 import tkinter as tk
 import ProcessTable
 import utils
-from tkinter import ttk
 import customtkinter as ctk
 
 
@@ -109,16 +108,17 @@ class LockrGUI:
         )
         self.websites_button.grid(column=2, row=0, padx=10)
 
-        # Create process_selected_name
-        self.process_selected_name = ctk.CTkLabel(
+        # Create selected_process_name_label
+        first_process_name = utils.processes[0][1]
+        self.selected_process_name_label = ctk.CTkLabel(
             self.process_selected_frame,
-            text=f"{utils.processes[0][1]}",
+            text=f"Process Name: {first_process_name}",
             font=("Helvetica", 22, "bold")
         )
-        self.process_selected_name.grid(column=1, row=1)
+        self.selected_process_name_label.grid(column=1, row=1)
 
         # Create process_table
-        self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.process_selected_name)
+        self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.selected_process_name_label)
 
         # Store lock_buttons in lock_button_list
         self.lock_buttons_list = []

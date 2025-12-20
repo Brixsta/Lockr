@@ -33,8 +33,8 @@ def toggle_lock_buttons(current_button, lock_buttons_list):
 
 
 def handle_confirm_lock_click(lock_buttons_list, process_table):
-    curr_selected_row = process_table.ptable.selection()
-    process_name = process_table.ptable.item(curr_selected_row)['values'][1]
+    curr_selected_row = process_table.process_table.selection()
+    process_name = process_table.selected_process_name
     process_time = ""
     lock_duration_hours = 0
 
@@ -49,7 +49,7 @@ def handle_confirm_lock_click(lock_buttons_list, process_table):
             lock_duration_hours = int("".join(c for c in process_time if c.isdigit()))
 
             # Create user prompt to confirm
-            create_prompt(curr_selected_row, process_table, process_name, lock_duration_hours, f"Are you sure you want to lock{process_name} for {process_time}?")
+            create_prompt(curr_selected_row, process_table, process_name, lock_duration_hours, f"Are you sure you want to lock {process_name} for {process_time}?")
 
 
 # ----------------- Message box helpers -----------------
@@ -85,6 +85,6 @@ def tick(root):
     root.after(1000, tick, root)
 
 def highlight_locked_rows(curr_selected_row_id, process_table, process_name):
-    process_table.ptable.item(curr_selected_row_id, tags=("locked",))
+    process_table.process_table.item(curr_selected_row_id, tags=("locked",))
 
     print(f"process_name: {process_name} row id: {curr_selected_row_id}" )
