@@ -232,6 +232,6 @@ class GUI:
             text_color="white",
             fg_color="red",
             hover_color="red",
-            command=lambda: utils.handle_confirm_lock_click(self.lock_buttons_list, self.process_table)
+            command=lambda: utils.handle_confirm_lock_click(self.lock_buttons_list, self.process_table, self.selected_process_status_label)
         )
         self.confirm_lock_button.pack(pady=10)

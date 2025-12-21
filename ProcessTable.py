@@ -22,23 +22,23 @@ class ProcessTable:
         self.selected_process_status_label = selected_process_status_label
 
     def create_table(self):
-        # Create process_table
-        self.process_table = ttk.Treeview(self.root, columns=["pid", "name"], show="headings")
-        self.process_table.heading("pid", text="PID")
-        self.process_table.heading("name", text="Process Name")
-        self.process_table.pack(fill="both", expand=True)
+        # Create treeview_table
+        self.treeview_table = ttk.Treeview(self.root, columns=["pid", "name"], show="headings")
+        self.treeview_table.heading("pid", text="PID")
+        self.treeview_table.heading("name", text="Process Name")
+        self.treeview_table.pack(fill="both", expand=True)
 
         # Loop through processes to fill table
         for key, values in utils.processes:
-            self.process_table.insert("", "end", values=(key, values))
+            self.treeview_table.insert("", "end", values=(key, values))
 
         # Bind select event to handle_select
-        self.process_table.bind("<<TreeviewSelect>>", self.handle_select)
+        self.treeview_table.bind("<<TreeviewSelect>>", self.handle_select)
 
         # Grab the first row information when table is built
-        first_row = self.process_table.get_children()[0]
-        pid = self.process_table.item(first_row)['values'][0]
-        process_name = self.process_table.item(first_row)['values'][1]
+        first_row = self.treeview_table.get_children()[0]
+        pid = self.treeview_table.item(first_row)['values'][0]
+        process_name = self.treeview_table.item(first_row)['values'][1]
 
         # Update first row information
         self.selected_row_id = first_row
@@ -53,11 +53,11 @@ class ProcessTable:
     def style_rows(self):
         # Style rows
 
-        # Create process_table_style
-        self.process_table_style = ttk.Style()
+        # Create treeview_table_style
+        self.treeview_table_style = ttk.Style()
 
-        # Row styling
-        self.process_table_style.configure(
+        # Style rows
+        self.treeview_table_style.configure(
             "Treeview",
             background="#F9FAFB",
             foreground="black",
@@ -66,36 +66,40 @@ class ProcessTable:
             font=("Helvetica", 10)
         )
 
-        # Set row colors
-        self.process_table.tag_configure("odd", background="white")
-        self.process_table.tag_configure("even", background="#EBF5FF")
-        self.process_table.tag_configure("locked", background="red")
+        # Create treeview_selected_row_style
+        self.treeview_selected_row_style = ttk.Style()
 
-        for index, item_id in enumerate(self.process_table.get_children()):
+        # Style selected rows
+        self.treeview_selected_row_style.map(
+            "Treeview",
+            background=[("selected", "#0078D7")],  # color when row is selected
+            foreground=[("selected", "white")]  # text color when selected
+        )
+
+        # Set row colors depending on tags
+        self.treeview_table.tag_configure("ODD", background="white")
+        self.treeview_table.tag_configure("EVEN", background="#EBF5FF")
+        self.treeview_table.tag_configure("LOCKED", background="red")
+
+        for index, item_id in enumerate(self.treeview_table.get_children()):
             if index % 2 == 0:
-                tag = "even"
+                tag = "EVEN"
             else:
-                tag = "odd"
+                tag = "ODD"
 
-            self.process_table.item(item_id, tags=(tag,))
+            self.treeview_table.item(item_id, tags=(tag,))
 
     def style_headers(self):
-        # Create process_table_header_style
-        self.process_table_header_style = ttk.Style()
+        # Create treeview_table_header_style
+        self.treeview_table_header_style = ttk.Style()
 
         # Style table headers
-        self.process_table_header_style.configure(
+        self.treeview_table_header_style.configure(
             "Treeview.Heading",
             background="#D0E4F7",
             foreground="black",
             font=("Helvetica", 12),
             relief="raised"
-        )
-
-        # Styles when hovering over the headers
-        self.process_table_style.map(
-            "Treeview.Heading",
-            background=[("active", "#B0D4F1")]
         )
 
     def handle_select(self, event):
@@ -104,10 +108,10 @@ class ProcessTable:
         item_values = event.widget.item(selected_row_id)['values']
         pid = item_values[0]
         process_name = item_values[1]
-        tags = self.process_table.item(selected_row_id)['tags']
+        tags = self.treeview_table.item(selected_row_id)['tags']
         status = ""
 
-        if "even" in tags or "odd" in tags:
+        if "EVEN" in tags or "ODD" in tags:
             status = "RUNNING"
         else:
             status = "LOCKED"
