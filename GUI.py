@@ -113,10 +113,9 @@ class GUI:
         self.websites_button.grid(column=2, row=0, padx=10)
 
         # Create selected_process_name_label
-        first_process_name = utils.processes[0][1]
         self.selected_process_name_label = ctk.CTkLabel(
             self.selected_process_frame,
-            text=f"Process Name: {first_process_name}",
+            text=f"Process Name: undfeind",
             font=("Helvetica", 22, "bold")
         )
         self.selected_process_name_label.grid(column=1, row=1)

@@ -3,14 +3,23 @@ import locked
 import tkinter.messagebox as messagebox
 from datetime import datetime, timedelta
 import excluded
+import Process
 
-processes = []
+processes = {}
 
-# Gather processes excluding certain names
-for proc in psutil.process_iter(['pid', 'name']):
-    if len(proc.info['name']) and proc.info['name'] not in excluded.OS:
-        processes.append([proc.info['pid'], proc.info['name']])
+def get_running_processes(table):
+    # Gather processes excluding certain names
+    for proc in psutil.process_iter(['pid', 'name']):
+        if len(proc.info['name']) and proc.info['name'] not in excluded.OS:
+            # Gather attributes of the new_process
+            pid = proc.info['pid']
+            name = proc.info['name']
+            status = "RUNNING"
+            lock_duration = 0
+            new_process = Process.Process(pid, name, status, lock_duration, table)
 
+            # Add new_process to processes dict
+            processes[pid] = new_process
 
 # ----------------- Button toggle helpers -----------------
 def toggle_processes(processes_button, websites_button):
@@ -33,37 +42,37 @@ def toggle_lock_buttons(current_button, lock_buttons_list):
 
 
 def handle_confirm_lock_click(lock_buttons_list, process_table, selected_process_status_label):
-    selected_row_id = process_table.selected_row_id
-    process_name = process_table.selected_process_name
-    process_time = ""
-    lock_duration = 0
+    process = process_table.selected_process
+    process_name = process.name
 
-    # Loop over buttons to see which has been pressed
+    # Loop over lock buttons to see which has been pressed
     for button in lock_buttons_list:
         pressed = (button.cget("fg_color") == "#DADADA")
         if (pressed):
             # Grab time string
-            process_time = button.cget("text")
+            lock_duration_str = button.cget("text")
 
-            # Grab hour value
-            lock_duration = int("".join(c for c in process_time if c.isdigit()))
-
-            # Create user prompt to confirm
-            create_prompt(lock_duration, process_table,
-                          f"Are you sure you want to lock {process_name} for {process_time}?")
+            # Create prompt message
+            create_lock_prompt(process, lock_duration_str, selected_process_status_label)
 
 
 # ----------------- Message box helpers -----------------
-def create_prompt(lock_duration, process_table, prompt_message):
+def create_lock_prompt(process, lock_duration_str, selected_process_status_label):
+    # Determine lock_duration_hours from lock_duration_str
+    lock_duration_hours = int("".join(c for c in lock_duration_str if c.isdigit()))
+
+    # Create prompt
     result = messagebox.askyesno(
         title="Confirm",
-        message=prompt_message
+        message=f"Are you sure you want to lock {process.name} for {lock_duration_str}?"
     )
 
-    # User presses "Yes" on Prompt
+    # User presses "Yes"
     if result:
-        lock_process(process_table, lock_duration)
-
+        print("YOU SAID YES")
+        process.lock_process(lock_duration_hours)
+        selected_process_status_label.configure(text=process.status, text_color="red")
+    # User presses "No"
     else:
         print("YOU SAID NO")
 
@@ -79,42 +88,7 @@ def tick(root):
     root.after(1000, tick, root)
 
 
-def lock_process(process_table, lock_duration):
-    # Add process to locked processes dict [pid] = lock_expiration
-    pid = process_table.selected_pid
-    lock_expiration = compute_lock_expiration(lock_duration)
-    locked.processes[pid] = lock_expiration
-
-    # Visually update UI to reflect locked process state
-    style_locked_process(process_table)
-
-    # Change process status to locked
-    process_table.selected_process_status = "LOCKED"
-
-
-def style_locked_process(process_table):
-    pid = process_table.selected_pid
-
-    # Find lock expiration
-    lock_expiration = find_locked_process_by_pid(pid)
-
-    # Change selected_process_status_label text
-    process_table.selected_process_status_label.configure(text=f"LOCKED {lock_expiration}")
-
-    # Turn selected_process_status_label text to red
-    process_table.selected_process_status_label.configure(text_color="red")
-
-    # Change locked rows to red
-    process_table.treeview_table.item(process_table.selected_row_id, tags=("LOCKED",))
-
-
 def compute_lock_expiration(lock_duration):
     now = datetime.now()
     expires_at = now + timedelta(hours=lock_duration)
     return expires_at
-
-def find_locked_process_by_pid(process_pid):
-    for pid, lock_expiration in locked.processes.items():
-        if process_pid == pid:
-            return locked.processes[pid]
-    return -1
