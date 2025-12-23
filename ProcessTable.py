@@ -1,17 +1,35 @@
 from tkinter import ttk
 import utils
+import psutil
+from Process import Process
 from utils import processes
+import excluded
 
 
 class ProcessTable:
     def __init__(self, root, selected_process_name_label, selected_process_status_label):
         self.root = root
+        self.processes = {}
         self.selected_process = None
         self.selected_process_name_label = selected_process_name_label
         self.selected_process_status_label = selected_process_status_label
         self.create_table()
         self.style_table()
 
+    def populate_processes(self):
+        # Gather processes excluding certain names
+        for proc in psutil.process_iter(['pid', 'name']):
+            if len(proc.info['name']) and proc.info['name'] not in excluded.OS:
+                # Gather attributes of the new_process
+                name = proc.info['name']
+                status = "RUNNING"
+                lock_duration = 0
+                new_process = Process(name, status, lock_duration)
+
+                if name in self.processes:
+                    continue
+                else:
+                    self.processes[name] = new_process
 
     def create_table(self):
         # Create treeview_table
@@ -20,12 +38,11 @@ class ProcessTable:
         self.treeview_table.pack(fill="both", expand=True)
 
         # Generate table data
-        utils.populate_processes(self.treeview_table)
+        self.populate_processes()
 
         # Insert table rows
-        for name, process in processes.items():
-            self.row_id = self.treeview_table.insert("", "end", values=(name))
-
+        for name, process in self.processes.items():
+            self.treeview_table.insert("", "end", values=(name,))
 
         # Bind select event to handle_select
         self.treeview_table.bind("<<TreeviewSelect>>", self.handle_select)
@@ -75,17 +92,35 @@ class ProcessTable:
             relief="raised"
         )
 
+    def find_row_by_text(self, text):
+        # Return treeview row id that's name value matches text
+        for row_id in self.treeview_table.get_children():
+            values = self.treeview_table.item(row_id, "values")
+            row_text = values[0]
+
+            if text == row_text:
+                return row_id
+        return -1
+
+    def turn_locked_rows_red(self, text):
+        row = self.find_row_by_text(text)
+        row_text = self.treeview_table.item(row, "values")[0]
+
+        # Turn row red by adding "LOCKED" tag
+        if text == row_text:
+            self.treeview_table.item(row, tags=("LOCKED",))
+
     def handle_select(self, event):
-        # Grab values for the first process object in processes[name]
+        # Grab values for selected row and which process it belongs to
         selected_row = event.widget.focus()
         item_values = event.widget.item(selected_row)['values']
         name = item_values[0]
-        process = processes[name][0]
+        process = self.processes[name]
 
         # Update selected_process
         self.selected_process = process
 
-        # Update selected_process_name_label
+        # Update text values of selected_process_name_label
         self.selected_process_name_label.configure(text=f"Process Name: {process.name}")
 
         # Update selected_process_status_label text
@@ -93,7 +128,6 @@ class ProcessTable:
 
         # Update text color of selected_process_status_label
         if (process.status == "LOCKED"):
-            self.selected_process_status_label.configure(text_color="red",
-                                                         text=f"{process.status} UNTIL: {process.lock_expiration}")
+            self.selected_process_status_label.configure(text_color="red",text=f"{process.status} UNTIL: {process.lock_expiration}")
         else:
             self.selected_process_status_label.configure(text_color="green")
