@@ -1,8 +1,6 @@
 from tkinter import ttk
-import utils
 import psutil
 from Process import Process
-from utils import processes
 import excluded
 
 
@@ -10,6 +8,7 @@ class ProcessTable:
     def __init__(self, root, selected_process_name_label, selected_process_status_label):
         self.root = root
         self.processes = {}
+        self.names_of_locked_processes = set()
         self.selected_process = None
         self.selected_process_name_label = selected_process_name_label
         self.selected_process_status_label = selected_process_status_label
@@ -24,7 +23,7 @@ class ProcessTable:
                 name = proc.info['name']
                 status = "RUNNING"
                 lock_duration = 0
-                new_process = Process(name, status, lock_duration)
+                new_process = Process(name, status, lock_duration, self.names_of_locked_processes)
 
                 if name in self.processes:
                     continue
@@ -58,7 +57,7 @@ class ProcessTable:
         # Style rows
         self.treeview_table_style.configure(
             "Treeview",
-            background="#F9FAFB",
+            background="white",
             foreground="black",
             rowheight=28,
             fieldbackground="#F9FAFB",
@@ -109,6 +108,14 @@ class ProcessTable:
         # Turn row red by adding "LOCKED" tag
         if text == row_text:
             self.treeview_table.item(row, tags=("LOCKED",))
+
+    def turn_unlocked_rows_white(self, text):
+        row = self.find_row_by_text(text)
+        row_text = self.treeview_table.item(row, "values")[0]
+
+        # Turn row red by adding "LOCKED" tag
+        if text == row_text:
+            self.treeview_table.item(row, tags=("RUNNING",))
 
     def handle_select(self, event):
         # Grab values for selected row and which process it belongs to

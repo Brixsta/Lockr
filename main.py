@@ -1,10 +1,10 @@
 import tkinter as tk
 from GUI import GUI
-import utils
+from utils import tick
 
 root = tk.Tk()
 app = GUI(root)
 
-utils.tick(root)  # Start the ticking loop to check for locked processes
+tick(root, app.process_table)  # Start the ticking loop to check for locked processes
 
 root.mainloop()

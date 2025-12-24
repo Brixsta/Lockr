@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import excluded
 import Process
 
-processes = {}
 
 # ----------------- Button toggle helpers -----------------
 def toggle_processes(processes_button, websites_button):
@@ -59,7 +58,8 @@ def create_lock_prompt(process_table, lock_duration_str, selected_process_status
         process.lock_process(lock_duration_hours)
 
         # Configure selected_process_status_label to red text with "LOCKED" message
-        selected_process_status_label.configure(text=f"{process.status} UNTIL: {process.lock_expiration}", text_color="red")
+        selected_process_status_label.configure(text=f"{process.status} UNTIL: {process.lock_expiration}",
+                                                text_color="red")
 
         # Turn locked rows red
         process_table.turn_locked_rows_red(process.name)
@@ -69,20 +69,44 @@ def create_lock_prompt(process_table, lock_duration_str, selected_process_status
 
 
 # ----------------- Tick / Scheduler -----------------
-def kill_locked():
-    x = 1
-    #
-    # for pid in list(locked_processes):
-    #
-    #     try:
-    #         psutil.Process(pid).kill()
-    #         print(f"Killed process {pid}")
-    #     except psutil.NoSuchProcess:
-    #         print(f"Process {pid} does not exist!")
-    #     except Exception as e:
-    #         print(f"Unexpected Error killing process {pid}: {e}")
+def tick(root, process_table):
+    # Kill all locked processes
+    kill_locked_processes(process_table)
+
+    # Repopulate processes to stay current
+    process_table.populate_processes()
+
+    # Check locked processes to determine if they are still locked
+    check_locked_processes(process_table)
+
+    root.after(2000, tick, root, process_table)
 
 
-def tick(root):
-    #kill_locked()
-    root.after(1000, tick, root)
+def kill_locked_processes(process_table):
+    for proc in psutil.process_iter(['name']):
+        try:
+            name = proc.info['name']
+            if name in process_table.names_of_locked_processes:
+                print(f"KILLING {name}")
+                proc.kill()
+        # Exception to handle when the process is already deleted or access is denied by the Operating System
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+
+def check_locked_processes(process_table):
+    for name, process in process_table.processes.items():
+
+        # Process is ready to be unlocked
+        if process.status == "LOCKED" and datetime.now() >= process.expires_at:
+
+            print(process.status)
+            # Unlock process
+            process.unlock_process()
+
+            print(f"UNLOCKING {process.name}")
+
+            # Determine row of the process to be unlocked
+            process_table.turn_unlocked_rows_white(name)
+
+            print(process.status)
+

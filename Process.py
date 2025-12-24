@@ -1,25 +1,30 @@
 from datetime import datetime, timedelta
-import utils
-from locked import locked_processes
 
 class Process:
-    def __init__(self, name, status, lock_duration):
+    def __init__(self, name, status, lock_duration, names_of_locked_processes):
         self.name = name
         self.status = status
         self.lock_duration = lock_duration
         self.lock_expiration = None
+        self.expires_at = None
+        self.names_of_locked_processes = names_of_locked_processes
 
     def lock_process(self, lock_duration):
         self.status = "LOCKED"
-        self.lock_duration = lock_duration
+        self.lock_duration = timedelta(seconds=20)
+        #self.lock_duration = lock_duration
         self.compute_lock_expiration()
+        self.names_of_locked_processes.add(self.name)
 
     def unlock_process(self):
         self.status = "RUNNING"
         self.lock_duration = 0
         self.lock_expiration = None
+        self.expires_at = None
+        self.names_of_locked_processes.remove(self.name)
 
     def compute_lock_expiration(self):
         now = datetime.now()
-        expires_at = now + timedelta(hours=self.lock_duration)
-        self.lock_expiration = expires_at.strftime("%b %d, %Y at %I:%M %p")
+        #self.expires_at = now + timedelta(self.lock_duration)
+        self.expires_at = now + self.lock_duration
+        self.lock_expiration = self.expires_at.strftime("%b %d, %Y at %I:%M %p")
