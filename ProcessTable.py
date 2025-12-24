@@ -39,7 +39,6 @@ class ProcessTable:
         # Create treeview_table
         self.treeview_table = ttk.Treeview(self.root, columns=["name"], show="headings")
         self.treeview_table.heading("name", text="Process Name")
-        self.treeview_table.pack(fill="both", expand=True)
 
         # Insert table rows with appropriate tags and sort them alphabetically
         for name in sorted(self.processes.keys(), key=str.lower):
@@ -71,8 +70,7 @@ class ProcessTable:
             foreground="black",
             rowheight=28,
             fieldbackground="#F9FAFB",
-            font=("Helvetica", 10),
-            border_color = "red"
+            font=("Helvetica", 10)
         )
 
         # Create treeview_selected_row_style
@@ -113,7 +111,7 @@ class ProcessTable:
 
             if text == row_text:
                 return row_id
-        return -1
+        return None
 
     def turn_locked_rows_red(self, text):
         row = self.find_row_by_text(text)

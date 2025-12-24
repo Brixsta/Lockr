@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import ProcessTable
 import utils
 import customtkinter as ctk
@@ -81,6 +82,11 @@ class GUI:
         self.lock_buttons_frame.columnconfigure(0, weight=1)
         self.lock_buttons_frame.columnconfigure(6, weight=1)
 
+        # Configure process_table_frame to accommodate the process_table and vsb
+        self.process_table_frame.rowconfigure(0, weight=1)
+        self.process_table_frame.columnconfigure(0, weight=1)
+        self.process_table_frame.columnconfigure(1, weight=0)
+
     def create_widgets(self):
         # Create processes_button
         self.processes_button = ctk.CTkButton(
@@ -131,6 +137,12 @@ class GUI:
 
         # Create process_table
         self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.selected_process_name_label, self.selected_process_status_label)
+
+        # Create vertical scrollbar
+        vsb = ttk.Scrollbar(self.process_table_frame, orient="vertical", command=self.process_table.treeview_table.yview)
+        self.process_table.treeview_table.configure(yscrollcommand=vsb.set)
+        self.process_table.treeview_table.grid(row=0, column=0, sticky="nsew")
+        vsb.grid(row=0, column=1, sticky="ns")
 
         # Store lock_buttons in lock_button_list
         self.lock_buttons_list = []
