@@ -102,7 +102,7 @@ def check_locked_processes(process_table):
             print(f"UNLOCKING {process.name}")
 
             # Determine row of the process to be unlocked
-            process_table.turn_unlocked_rows_white(name)
+            process_table.remove_red_rows(name)
 
             print(process.status)
 

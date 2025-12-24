@@ -8,10 +8,11 @@ class Process:
         self.lock_expiration = None
         self.expires_at = None
         self.names_of_locked_processes = names_of_locked_processes
+        self.tag = None
 
     def lock_process(self, lock_duration):
         self.status = "LOCKED"
-        self.lock_duration = timedelta(seconds=20)
+        self.lock_duration = timedelta(seconds=5)
         #self.lock_duration = lock_duration
         self.compute_lock_expiration()
         self.names_of_locked_processes.add(self.name)

@@ -12,6 +12,11 @@ class ProcessTable:
         self.selected_process = None
         self.selected_process_name_label = selected_process_name_label
         self.selected_process_status_label = selected_process_status_label
+
+        # Generate treeview_table data
+        self.populate_processes()
+
+        # Create and style treeview_table
         self.create_table()
         self.style_table()
 
@@ -36,12 +41,17 @@ class ProcessTable:
         self.treeview_table.heading("name", text="Process Name")
         self.treeview_table.pack(fill="both", expand=True)
 
-        # Generate table data
-        self.populate_processes()
-
-        # Insert table rows
+        # Insert table rows with appropriate tags and sort them alphabetically
         for name in sorted(self.processes.keys(), key=str.lower):
             self.treeview_table.insert("", "end", values=(name,))
+
+        # Add initial tags to processes so their colors alternate
+        for index, row_id in enumerate(self.treeview_table.get_children()):
+            name = self.treeview_table.item(row_id, "values")[0]
+            process = self.processes[name]
+            tag = "EVEN" if index % 2 == 0 else "ODD"
+            process.tag = tag
+            self.treeview_table.item(row_id, tags=(tag,))
 
         # Bind select event to handle_select
         self.treeview_table.bind("<<TreeviewSelect>>", self.handle_select)
@@ -61,7 +71,8 @@ class ProcessTable:
             foreground="black",
             rowheight=28,
             fieldbackground="#F9FAFB",
-            font=("Helvetica", 10)
+            font=("Helvetica", 10),
+            border_color = "red"
         )
 
         # Create treeview_selected_row_style
@@ -74,9 +85,12 @@ class ProcessTable:
             foreground=[("selected", "white")]  # text color when selected
         )
 
-        # Set row colors depending on tags
+        # Set row colors for running and locked
         self.treeview_table.tag_configure("RUNNING", background="white")
         self.treeview_table.tag_configure("LOCKED", background="red")
+
+        self.treeview_table.tag_configure("ODD", background="#F0F0F0")
+        self.treeview_table.tag_configure("EVEN", background="#FFFFFF")
 
     def style_headers(self):
         # Create treeview_table_header_style
@@ -109,13 +123,14 @@ class ProcessTable:
         if text == row_text:
             self.treeview_table.item(row, tags=("LOCKED",))
 
-    def turn_unlocked_rows_white(self, text):
+    def remove_red_rows(self, text):
         row = self.find_row_by_text(text)
         row_text = self.treeview_table.item(row, "values")[0]
+        process = self.processes[row_text]
 
         # Turn row red by adding "LOCKED" tag
         if text == row_text:
-            self.treeview_table.item(row, tags=("RUNNING",))
+            self.treeview_table.item(row, tags=(process.tag,))
 
     def handle_select(self, event):
         # Grab values for selected row and which process it belongs to
