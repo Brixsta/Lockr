@@ -40,7 +40,7 @@ class ProcessTable:
         self.populate_processes()
 
         # Insert table rows
-        for name, process in self.processes.items():
+        for name in sorted(self.processes.keys(), key=str.lower):
             self.treeview_table.insert("", "end", values=(name,))
 
         # Bind select event to handle_select

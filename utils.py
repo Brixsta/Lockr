@@ -1,9 +1,6 @@
 import psutil
 import tkinter.messagebox as messagebox
-from datetime import datetime, timedelta
-import excluded
-import Process
-
+from datetime import datetime
 
 # ----------------- Button toggle helpers -----------------
 def toggle_processes(processes_button, websites_button):
@@ -99,7 +96,6 @@ def check_locked_processes(process_table):
         # Process is ready to be unlocked
         if process.status == "LOCKED" and datetime.now() >= process.expires_at:
 
-            print(process.status)
             # Unlock process
             process.unlock_process()
 
