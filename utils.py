@@ -35,6 +35,42 @@ def handle_confirm_lock_click(lock_buttons_list, process_table, selected_process
             # Create prompt message
             create_lock_prompt(process_table, lock_duration_str, selected_process_status_label)
 
+def handle_refresh_button_click(process_table):
+    tree = process_table.treeview_table
+    processes = process_table.processes
+
+
+    # Delete all current rows
+    for item in tree.get_children():
+        tree.delete(item)
+
+    # Clear out unlocked processes
+    process_table.clear_unlocked_processes()
+
+    # Repopulate current processes, while including the locked processes
+    process_table.populate_processes()
+
+    # Insert table rows
+    for index, name in enumerate(sorted(processes.keys(), key=str.lower)):
+        row_id = tree.insert("", "end", values=(name,))
+        process = processes[name]
+        tag = "EVEN" if index % 2 == 0 else "ODD"
+        process.tag = tag
+
+
+
+        if name not in process_table.names_of_locked_processes:
+            tree.item(row_id, tags=(tag,))
+        else:
+            tree.item(row_id, tags=(tag, "LOCKED"))
+
+    # Configure row tags
+
+    tree.tag_configure("ODD", background="#F0F0F0")
+    tree.tag_configure("EVEN", background="#FFFFFF")
+    tree.tag_configure("LOCKED", background="red")
+
+
 
 # ----------------- Message box helpers -----------------
 def create_lock_prompt(process_table, lock_duration_str, selected_process_status_label):
@@ -84,7 +120,6 @@ def kill_locked_processes(process_table):
         try:
             name = proc.info['name']
             if name in process_table.names_of_locked_processes:
-                print(f"KILLING {name}")
                 proc.kill()
         # Exception to handle when the process is already deleted or access is denied by the Operating System
         except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -99,10 +134,5 @@ def check_locked_processes(process_table):
             # Unlock process
             process.unlock_process()
 
-            print(f"UNLOCKING {process.name}")
-
             # Determine row of the process to be unlocked
             process_table.remove_red_rows(name)
-
-            print(process.status)
-

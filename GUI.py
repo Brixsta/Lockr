@@ -156,7 +156,9 @@ class GUI:
             hover_color="#006400",
             cursor="hand2",
             font=("Helvetica", 16, "bold"),
-            height=50,)
+            height=50,
+            command= lambda : utils.handle_refresh_button_click(self.process_table)
+            )
         self.refresh_table_button.pack(fill="x", padx=130)
 
         # Store lock_buttons in lock_button_list

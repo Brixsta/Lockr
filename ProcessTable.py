@@ -3,9 +3,8 @@ import psutil
 from Process import Process
 import excluded
 
-
 class ProcessTable:
-    def __init__(self, root, selected_process_name_label, selected_process_status_label):
+    def __init__(self, root, selected_process_name_label, selected_process_status_label, ):
         self.root = root
         self.processes = {}
         self.names_of_locked_processes = set()
@@ -35,9 +34,22 @@ class ProcessTable:
                 else:
                     self.processes[name] = new_process
 
+    def clear_unlocked_processes(self):
+        print(f"CURRENT LOCKED PROCESSES {self.names_of_locked_processes}")
+        for process_name, process in list(self.processes.items()):
+            if process.name in self.names_of_locked_processes:
+                print(f"{process.name} is locked so I'm keeping it!")
+                continue
+            else:
+                del self.processes[process.name]
+
+        print(self.processes)
+
+
     def create_table(self):
         # Create treeview_table
         self.treeview_table = ttk.Treeview(self.root, columns=["name"], show="headings")
+        self.treeview_table.grid()
         self.treeview_table.heading("name", text="Process Name")
 
         # Insert table rows with appropriate tags and sort them alphabetically
@@ -84,9 +96,7 @@ class ProcessTable:
         )
 
         # Set row colors for running and locked
-        self.treeview_table.tag_configure("RUNNING", background="white")
         self.treeview_table.tag_configure("LOCKED", background="red")
-
         self.treeview_table.tag_configure("ODD", background="#F0F0F0")
         self.treeview_table.tag_configure("EVEN", background="#FFFFFF")
 
@@ -133,9 +143,17 @@ class ProcessTable:
     def handle_select(self, event):
         # Grab values for selected row and which process it belongs to
         selected_row = event.widget.focus()
-        item_values = event.widget.item(selected_row)['values']
+        if not selected_row: # Nothing selected
+            return
+
+        item_values = event.widget.item(selected_row).get('values', [])
+        if not item_values:  # Row has no values
+            return
+
         name = item_values[0]
         process = self.processes[name]
+        if not process:
+            return
 
         # Update selected_process
         self.selected_process = process
