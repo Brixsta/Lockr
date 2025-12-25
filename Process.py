@@ -12,7 +12,7 @@ class Process:
 
     def lock_process(self, lock_duration):
         self.status = "LOCKED"
-        self.lock_duration = timedelta(seconds=5)
+        self.lock_duration = timedelta(seconds=10)
         #self.lock_duration = lock_duration
         self.compute_lock_expiration()
         self.names_of_locked_processes.add(self.name)

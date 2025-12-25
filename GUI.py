@@ -43,6 +43,10 @@ class GUI:
         self.process_table_frame = tk.Frame(self.left_main_frame)
         self.process_table_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
+        # Create refresh_table_frame
+        self.refresh_table_frame = tk.Frame(self.left_main_frame, bg="#EAEAEA")
+        self.refresh_table_frame.pack(fill="x", padx=20, pady=(0,20))
+
         # Create right_main_frame
         self.right_main_frame = tk.Frame(self.main_frame, bg="#EAEAEA")
         self.right_main_frame.place(relx=.5, rely=0, relwidth=.5, relheight=1)
@@ -143,6 +147,19 @@ class GUI:
         self.process_table.treeview_table.configure(yscrollcommand=vsb.set)
         self.process_table.treeview_table.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")
+
+        # Create refresh_table_button
+        self.refresh_table_button = ctk.CTkButton(self.refresh_table_frame,
+            text="Refresh Table",
+            text_color="#1F2937",
+            fg_color="#F0F0F0",
+            hover_color="#DADADA",
+            border_width=1,
+            border_color="#C0C0C0",
+            cursor="hand2",
+            font=("Helvetica", 16, "bold"),
+            height=50,)
+        self.refresh_table_button.pack(fill="x")
 
         # Store lock_buttons in lock_button_list
         self.lock_buttons_list = []
