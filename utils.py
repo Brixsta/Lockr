@@ -2,6 +2,7 @@ import psutil
 import tkinter.messagebox as messagebox
 from datetime import datetime
 
+
 # ----------------- Button toggle helpers -----------------
 def toggle_processes(processes_button, websites_button):
     processes_button.configure(fg_color="#DADADA")
@@ -23,8 +24,6 @@ def toggle_lock_buttons(current_button, lock_buttons_list):
 
 
 def handle_confirm_lock_click(lock_buttons_list, process_table, selected_process_status_label):
-    process = process_table.selected_process
-
     # Loop over lock buttons to see which has been pressed
     for button in lock_buttons_list:
         pressed = (button.cget("fg_color") == "#DADADA")
@@ -35,10 +34,11 @@ def handle_confirm_lock_click(lock_buttons_list, process_table, selected_process
             # Create prompt message
             create_lock_prompt(process_table, lock_duration_str, selected_process_status_label)
 
+
 def handle_refresh_button_click(process_table):
     tree = process_table.treeview_table
     processes = process_table.processes
-
+    locked_processes = process_table.names_of_locked_processes
 
     # Delete all current rows
     for item in tree.get_children():
@@ -48,33 +48,26 @@ def handle_refresh_button_click(process_table):
     process_table.clear_unlocked_processes()
 
     # Repopulate current processes, while including the locked processes
-    process_table.populate_processes()
+    process_table.populate_processes(tree)
 
-    # Insert table rows
-    for index, name in enumerate(sorted(processes.keys(), key=str.lower)):
-        row_id = tree.insert("", "end", values=(name,))
-        process = processes[name]
-        tag = "EVEN" if index % 2 == 0 else "ODD"
-        process.tag = tag
+    # Insert table rows check if they are locked
+    for name in sorted(processes.keys(), key=str.lower):
+        row_id = tree.insert(
+            "",
+            "end",
+            values=(name,)
+        )
 
+        if name in locked_processes:
+            tree.item(row_id, tags=("LOCKED",))
 
-
-        if name not in process_table.names_of_locked_processes:
-            tree.item(row_id, tags=(tag,))
-        else:
-            tree.item(row_id, tags=(tag, "LOCKED"))
-
-    # Configure row tags
-
-    tree.tag_configure("ODD", background="#F0F0F0")
-    tree.tag_configure("EVEN", background="#FFFFFF")
-    tree.tag_configure("LOCKED", background="red")
-
+    process_table.paint_alternating_rows()
 
 
 # ----------------- Message box helpers -----------------
 def create_lock_prompt(process_table, lock_duration_str, selected_process_status_label):
     process = process_table.selected_process
+    tree = process_table.treeview_table
 
     # Determine lock_duration_hours from lock_duration_str
     lock_duration_hours = int("".join(c for c in lock_duration_str if c.isdigit()))
@@ -87,6 +80,10 @@ def create_lock_prompt(process_table, lock_duration_str, selected_process_status
 
     # User presses "Yes"
     if result:
+        name = process.name
+        row_id = process_table.find_row_by_text(name)
+        tree = process_table.treeview_table
+
         # Lock the process
         process.lock_process(lock_duration_hours)
 
@@ -94,11 +91,9 @@ def create_lock_prompt(process_table, lock_duration_str, selected_process_status
         selected_process_status_label.configure(text=f"{process.status} UNTIL: {process.lock_expiration}",
                                                 text_color="red")
 
-        # Turn locked rows red
-        process_table.turn_locked_rows_red(process.name)
-
+    # User presses "No"
     else:
-        print("YOU SAID NO")
+        pass
 
 
 # ----------------- Tick / Scheduler -----------------
@@ -106,11 +101,11 @@ def tick(root, process_table):
     # Kill all locked processes
     kill_locked_processes(process_table)
 
-    # Repopulate processes to stay current
-    process_table.populate_processes()
-
     # Check locked processes to determine if they are still locked
-    check_locked_processes(process_table)
+    check_locked_processes_to_unlock(process_table)
+
+    # Check selected_process_status_label
+    check_selected_process_status_label(process_table)
 
     root.after(2000, tick, root, process_table)
 
@@ -125,14 +120,21 @@ def kill_locked_processes(process_table):
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
 
-def check_locked_processes(process_table):
+
+def check_locked_processes_to_unlock(process_table):
     for name, process in process_table.processes.items():
 
         # Process is ready to be unlocked
         if process.status == "LOCKED" and datetime.now() >= process.expires_at:
-
             # Unlock process
             process.unlock_process()
 
-            # Determine row of the process to be unlocked
-            process_table.remove_red_rows(name)
+            # Repaint the rows
+            process_table.paint_alternating_rows()
+
+
+def check_selected_process_status_label(process_table):
+    curr = process_table.selected_process
+
+    if curr.status == "RUNNING":
+        process_table.selected_process_status_label.configure(text="RUNNING", text_color="green")

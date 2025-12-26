@@ -122,14 +122,6 @@ class GUI:
         )
         self.websites_button.grid(column=2, row=0, padx=10)
 
-        # Create selected_process_name_label
-        self.selected_process_name_label = ctk.CTkLabel(
-            self.selected_process_frame,
-            text=f"Process Name: undfeind",
-            font=("Helvetica", 22, "bold")
-        )
-        self.selected_process_name_label.grid(column=1, row=1)
-
         # Create selected_process_status_label
         self.selected_process_status_label = ctk.CTkLabel(
             self.selected_process_status_frame,
@@ -139,8 +131,17 @@ class GUI:
         )
         self.selected_process_status_label.pack()
 
+        # Create selected_process_name_label
+        self.selected_process_name_label = ctk.CTkLabel(
+            self.selected_process_frame,
+            text=f"Process Name: woops",
+            font=("Helvetica", 22, "bold")
+        )
+        self.selected_process_name_label.grid(column=1, row=1)
+
         # Create process_table
-        self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.selected_process_name_label, self.selected_process_status_label)
+        self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.selected_process_name_label,
+                                                       self.selected_process_status_label)
 
         # Create vertical scrollbar
         vsb = ttk.Scrollbar(self.process_table_frame, orient="vertical", command=self.process_table.treeview_table.yview)
