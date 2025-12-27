@@ -61,6 +61,7 @@ def handle_refresh_button_click(process_table):
         if name in locked_processes:
             tree.item(row_id, tags=("LOCKED",))
 
+    process_table.make_first_row_selected()
     process_table.paint_alternating_rows()
 
 

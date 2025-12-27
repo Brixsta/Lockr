@@ -9,7 +9,6 @@ class ProcessTable:
         self.root = root
         self.processes = {}
         self.names_of_locked_processes = set()
-        self.first_process = None
 
         # Handle the selected_process
         self.selected_process = None
@@ -27,7 +26,7 @@ class ProcessTable:
     def populate_processes(self, treeview_table):
         # Gather processes excluding certain names
         for proc in psutil.process_iter(['pid', 'name']):
-            if len(proc.info['name']) and proc.info['name'] not in excluded.OS:
+            if len(proc.info['name']) and proc.info['name'].lower() not in {name.lower() for name in excluded.OS}:
                 # Gather attributes of the new_process
                 name = proc.info['name']
                 status = "RUNNING"
@@ -46,6 +45,31 @@ class ProcessTable:
                 continue
             else:
                 del self.processes[process.name]
+
+    def make_first_row_selected(self):
+        # Grab first process after alphabetically sorting
+        tree = self.treeview_table
+        first_process_name = tree.item(tree.get_children()[0], "values")[0]
+        row_id = self.find_row_by_text(first_process_name)
+        process = self.processes[first_process_name]
+
+        # Assign first process as the selected_process
+        self.selected_process = process
+        tree.item(row_id, tags=("SELECTED",))
+        tree.selection_set(row_id)
+
+        # Update text values of selected_process_name_label
+        self.selected_process_name_label.configure(text=f"Process Name: {process.name}")
+
+        # Update selected_process_status_label text
+        self.selected_process_status_label.configure(text=f"{process.status}")
+
+        # Update text color of selected_process_status_label
+        if (process.status == "LOCKED"):
+            self.selected_process_status_label.configure(text_color="red",
+                                                         text=f"{process.status} UNTIL: {process.lock_expiration}")
+        else:
+            self.selected_process_status_label.configure(text_color="green")
 
     def create_table(self):
         # Create treeview_table
@@ -67,12 +91,7 @@ class ProcessTable:
         # Bind select event to handle_select
         self.treeview_table.bind("<<TreeviewSelect>>", self.handle_select)
 
-        # Grab first process after alphabetically sorting
-        first_process_name = self.treeview_table.item(self.treeview_table.get_children()[0], "values")[0]
-        self.first_process = self.processes[first_process_name]
-
-        # Assign first process as the selected_process
-        self.selected_process = self.first_process
+        self.make_first_row_selected()
 
         # Apply table styling
         self.style_rows()
@@ -101,6 +120,7 @@ class ProcessTable:
         )
 
         # Set row colors for running and locked
+        self.treeview_table.tag_configure("SELECTED", background="#3B82F6", foreground="white")
         self.treeview_table.tag_configure("ODD", background="#F0F0F0")
         self.treeview_table.tag_configure("EVEN", background="#FFFFFF")
         self.treeview_table.tag_configure(
@@ -125,12 +145,12 @@ class ProcessTable:
             name = tree.item(row_id, "values")[0]
             process = self.processes[name]
             tag = "EVEN" if index % 2 == 0 else "ODD"
+            selected_row = self.treeview_table.selection()[0]
 
             if process.status == "LOCKED":
                 tree.item(row_id, tags=("LOCKED",))
             else:
                 tree.item(row_id, tags=(tag,))
-
 
     def find_row_by_text(self, text):
         # Return treeview row id that's name value matches text
@@ -143,7 +163,6 @@ class ProcessTable:
         return None
 
     def handle_select(self, event):
-        # Grab values for selected row and which process it belongs to
         selected_row = event.widget.focus()
         if not selected_row:  # Nothing selected
             return
@@ -153,6 +172,7 @@ class ProcessTable:
             return
 
         name = item_values[0]
+
         process = self.processes[name]
         if not process:
             return
