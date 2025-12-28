@@ -22,6 +22,7 @@ class GUI:
         # Specify how big the window is
         self.root.geometry(f"{screen_width}x{screen_height}")
 
+
     def create_frames(self):
         # Create header_frame
         self.header_frame = tk.Frame(self.root, bg="#EAEAEA")
@@ -39,13 +40,17 @@ class GUI:
         self.left_main_frame = tk.Frame(self.main_frame, bg="#EAEAEA")
         self.left_main_frame.place(relx=0, rely=0, relwidth=.5, relheight=1)
 
+        # Create search_bar_frame
+        self.search_bar_frame = tk.Frame(self.left_main_frame, bg="#EAEAEA")
+        self.search_bar_frame.pack(fill="x", padx=100, pady=(20, 0))
+
         # Create process_table_frame
         self.process_table_frame = tk.Frame(self.left_main_frame)
         self.process_table_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Create refresh_table_frame
         self.refresh_table_frame = tk.Frame(self.left_main_frame, bg="#EAEAEA")
-        self.refresh_table_frame.pack(fill="x", padx=0, pady=(0,20))
+        self.refresh_table_frame.pack(fill="x", padx=0, pady=(0, 20))
 
         # Create right_main_frame
         self.right_main_frame = tk.Frame(self.main_frame, bg="#EAEAEA")
@@ -134,32 +139,41 @@ class GUI:
         # Create selected_process_name_label
         self.selected_process_name_label = ctk.CTkLabel(
             self.selected_process_frame,
-            text=f"Process Name: woops",
+            text=f"Process Name:",
             font=("Helvetica", 22, "bold")
         )
         self.selected_process_name_label.grid(column=1, row=1)
+
+        # Create search_bar_entry
+        self.search_var = ctk.StringVar()
+        self.search_bar_entry = ctk.CTkEntry(self.search_bar_frame, placeholder_text="Enter process name here",
+                                             font=("Helvetica", 14), border_width=1, border_color="#C0C0C0",
+                                             text_color="#1F2937", textvariable=self.search_var)
+        self.search_bar_entry.pack(fill="x", ipadx=10, ipady=5)
+        self.search_var.trace_add("write", self.handle_search_bar_input)
 
         # Create process_table
         self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.selected_process_name_label,
                                                        self.selected_process_status_label)
 
         # Create vertical scrollbar
-        vsb = ttk.Scrollbar(self.process_table_frame, orient="vertical", command=self.process_table.treeview_table.yview)
+        vsb = ttk.Scrollbar(self.process_table_frame, orient="vertical",
+                            command=self.process_table.treeview_table.yview)
         self.process_table.treeview_table.configure(yscrollcommand=vsb.set)
         self.process_table.treeview_table.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")
 
         # Create refresh_table_button
         self.refresh_table_button = ctk.CTkButton(self.refresh_table_frame,
-            text="Refresh Table",
-            text_color="white",
-            fg_color="forestgreen",
-            hover_color="#006400",
-            cursor="hand2",
-            font=("Helvetica", 16, "bold"),
-            height=50,
-            command= lambda : utils.handle_refresh_button_click(self.process_table)
-            )
+                                                  text="Refresh Table",
+                                                  text_color="white",
+                                                  fg_color="forestgreen",
+                                                  hover_color="#006400",
+                                                  cursor="hand2",
+                                                  font=("Helvetica", 16, "bold"),
+                                                  height=50,
+                                                  command=lambda: utils.handle_refresh_button_click(self.process_table)
+                                                  )
         self.refresh_table_button.pack(fill="x", padx=130)
 
         # Store lock_buttons in lock_button_list
@@ -261,6 +275,12 @@ class GUI:
             text_color="white",
             fg_color="red",
             hover_color="#C00000",
-            command=lambda: utils.handle_confirm_lock_click(self.lock_buttons_list, self.process_table, self.selected_process_status_label)
+            command=lambda: utils.handle_confirm_lock_click(self.lock_buttons_list, self.process_table,
+                                                            self.selected_process_status_label)
         )
         self.confirm_lock_button.pack(fill="x", pady=10, padx=130)
+
+    def handle_search_bar_input(self, *args):
+        text = self.search_var.get()
+        print("Search changed:", text)
+        # filter treeview here

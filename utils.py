@@ -36,33 +36,7 @@ def handle_confirm_lock_click(lock_buttons_list, process_table, selected_process
 
 
 def handle_refresh_button_click(process_table):
-    tree = process_table.treeview_table
-    processes = process_table.processes
-    locked_processes = process_table.names_of_locked_processes
-
-    # Delete all current rows
-    for item in tree.get_children():
-        tree.delete(item)
-
-    # Clear out unlocked processes
-    process_table.clear_unlocked_processes()
-
-    # Repopulate current processes, while including the locked processes
-    process_table.populate_processes(tree)
-
-    # Insert table rows check if they are locked
-    for name in sorted(processes.keys(), key=str.lower):
-        row_id = tree.insert(
-            "",
-            "end",
-            values=(name,)
-        )
-
-        if name in locked_processes:
-            tree.item(row_id, tags=("LOCKED",))
-
-    process_table.make_first_row_selected()
-    process_table.paint_alternating_rows()
+    refresh_table(process_table, process_table.processes)
 
 
 # ----------------- Message box helpers -----------------
@@ -139,3 +113,27 @@ def check_selected_process_status_label(process_table):
 
     if curr.status == "RUNNING":
         process_table.selected_process_status_label.configure(text="RUNNING", text_color="green")
+
+def refresh_table(process_table, processes):
+    tree = process_table.treeview_table
+
+    # Delete all current rows
+    for item in tree.get_children():
+        tree.delete(item)
+
+    # Clear out unlocked processes
+    process_table.clear_unlocked_processes()
+
+    # Repopulate current processes, while including the locked processes
+    process_table.populate_processes(tree)
+
+    # Insert table rows check if they are locked
+    for name in sorted(processes.keys(), key=str.lower):
+        row_id = tree.insert(
+            "",
+            "end",
+            values=(name,)
+        )
+
+    process_table.make_first_row_selected()
+    process_table.paint_alternating_rows()

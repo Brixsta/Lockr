@@ -72,6 +72,7 @@ class ProcessTable:
             self.selected_process_status_label.configure(text_color="green")
 
     def create_table(self):
+
         # Create treeview_table
         self.treeview_table = ttk.Treeview(self.root, columns=["name"], show="headings")
         self.treeview_table.grid()
@@ -91,6 +92,7 @@ class ProcessTable:
         # Bind select event to handle_select
         self.treeview_table.bind("<<TreeviewSelect>>", self.handle_select)
 
+        # Make the first row the one that is selected
         self.make_first_row_selected()
 
         # Apply table styling
@@ -112,7 +114,7 @@ class ProcessTable:
         # Style rows
         self.treeview_table_style.configure(
             "Treeview",
-            foreground="black",
+            foreground="#1F2937",
             rowheight=28,
             font=("Helvetica", 10),
             background="",
@@ -145,9 +147,8 @@ class ProcessTable:
             name = tree.item(row_id, "values")[0]
             process = self.processes[name]
             tag = "EVEN" if index % 2 == 0 else "ODD"
-            selected_row = self.treeview_table.selection()[0]
 
-            if process.status == "LOCKED":
+            if process.status == "LOCKED" or process.name in self.names_of_locked_processes:
                 tree.item(row_id, tags=("LOCKED",))
             else:
                 tree.item(row_id, tags=(tag,))
