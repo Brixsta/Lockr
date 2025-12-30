@@ -74,7 +74,7 @@ def tick(root, process_table):
     # Check selected_process_status_label
     check_selected_process_status_label(process_table)
 
-    root.after(2000, tick, root, process_table)
+    root.after(1000, tick, root, process_table)
 
 
 def kill_locked_processes(process_table):

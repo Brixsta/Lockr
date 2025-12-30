@@ -13,8 +13,7 @@ class Process:
 
     def lock_process(self, lock_duration):
         self.status = "LOCKED"
-        self.lock_duration = timedelta(seconds=5)
-        # self.lock_duration = lock_duration
+        self.lock_duration = lock_duration
         self.compute_lock_expiration()
         self.names_of_locked_processes.add(self.name)
 
@@ -32,8 +31,7 @@ class Process:
 
     def compute_lock_expiration(self):
         now = datetime.now()
-        # self.expires_at = now + timedelta(self.lock_duration)
-        self.expires_at = now + self.lock_duration
+        self.expires_at = now + timedelta(self.lock_duration)
         self.lock_expiration = self.expires_at.strftime("%b %d, %Y at %I:%M %p")
 
     def find_row_id_of_process(self):
