@@ -1,18 +1,10 @@
 import psutil
 import tkinter.messagebox as messagebox
 from datetime import datetime
+import GUI
 
 
 # ----------------- Button toggle helpers -----------------
-def toggle_processes(processes_button, websites_button):
-    processes_button.configure(fg_color="#DADADA")
-    websites_button.configure(fg_color="#F0F0F0")
-
-
-def toggle_websites(processes_button, websites_button):
-    processes_button.configure(fg_color="#F0F0F0")
-    websites_button.configure(fg_color="#DADADA")
-
 
 def toggle_lock_buttons(current_button, lock_buttons_list):
     # Set all buttons to up state
@@ -35,8 +27,9 @@ def handle_confirm_lock_click(lock_buttons_list, process_table, selected_process
             create_lock_prompt(process_table, lock_duration_str, selected_process_status_label)
 
 
-def handle_refresh_button_click(process_table):
+def handle_refresh_button_click(process_table, handle_search_bar_input):
     refresh_table(process_table, process_table.processes)
+    handle_search_bar_input()
 
 
 # ----------------- Message box helpers -----------------

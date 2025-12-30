@@ -22,15 +22,10 @@ class GUI:
         # Specify how big the window is
         self.root.geometry(f"{screen_width}x{screen_height}")
 
-
     def create_frames(self):
         # Create header_frame
-        self.header_frame = tk.Frame(self.root, bg="#EAEAEA")
-        self.header_frame.pack(fill="x", ipady=10)
-
-        # Create mode_buttons_frame
-        self.mode_buttons_frame = tk.Frame(self.root, bg="#EAEAEA")
-        self.mode_buttons_frame.pack(fill="x")
+        self.header_frame = tk.Frame(self.root, bg="black")
+        self.header_frame.pack(fill="x")
 
         # Create main_frame
         self.main_frame = tk.Frame(self.root, bg="#EAEAEA")
@@ -77,10 +72,6 @@ class GUI:
         self.activate_lock_frame.pack(fill="x")
 
     def configure_frames(self):
-        # Configure mode_buttons_frame
-        self.mode_buttons_frame.columnconfigure(0, weight=1)
-        self.mode_buttons_frame.columnconfigure(3, weight=1)
-
         # Configure selected_process_frame
         self.selected_process_frame.rowconfigure(0, weight=1)
         self.selected_process_frame.rowconfigure(2, weight=1)
@@ -97,35 +88,15 @@ class GUI:
         self.process_table_frame.columnconfigure(1, weight=0)
 
     def create_widgets(self):
-        # Create processes_button
-        self.processes_button = ctk.CTkButton(
-            self.mode_buttons_frame,
-            text="Processes",
-            text_color="#1F2937",
-            fg_color="#DADADA",
-            hover_color="#DADADA",
-            border_width=1,
-            border_color="#C0C0C0",
-            cursor="hand2",
-            font=("Helvetica", 14),
-            command=lambda: utils.toggle_processes(self.processes_button, self.websites_button)
-        )
-        self.processes_button.grid(column=1, row=0, padx=10)
 
-        # Create websites_button
-        self.websites_button = ctk.CTkButton(
-            self.mode_buttons_frame,
-            text="Websites",
-            text_color="#1F2937",
-            fg_color="#F0F0F0",
-            hover_color="#DADADA",
-            border_width=1,
-            border_color="#C0C0C0",
-            cursor="hand2",
-            font=("Helvetica", 14),
-            command=lambda: utils.toggle_websites(self.processes_button, self.websites_button)
+        # Create logo_label
+        self.header_label = ctk.CTkLabel(
+            self.header_frame,
+            text="Lockr",
+            font=("Helvetica", 16, "bold"),
+            text_color="white",
         )
-        self.websites_button.grid(column=2, row=0, padx=10)
+        self.header_label.pack(pady=5, padx=10, side="left")
 
         # Create selected_process_status_label
         self.selected_process_status_label = ctk.CTkLabel(
@@ -172,7 +143,8 @@ class GUI:
                                                   cursor="hand2",
                                                   font=("Helvetica", 16, "bold"),
                                                   height=50,
-                                                  command=lambda: utils.handle_refresh_button_click(self.process_table)
+                                                  command=lambda: utils.handle_refresh_button_click(self.process_table,
+                                                                                                    self.handle_search_bar_input)
                                                   )
         self.refresh_table_button.pack(fill="x", padx=130)
 
@@ -281,6 +253,18 @@ class GUI:
         self.confirm_lock_button.pack(fill="x", pady=10, padx=130)
 
     def handle_search_bar_input(self, *args):
-        text = self.search_var.get()
-        print("Search changed:", text)
-        # filter treeview here
+        input_text = self.search_var.get().lower()
+        table = self.process_table
+        tree = table.treeview_table
+
+        # Delete all current rows
+        for item in tree.get_children():
+            tree.delete(item)
+
+        # Reinsert matching rows in alphabetical order
+        for name in sorted(table.processes.keys(), key=str.lower):
+            if name.lower().startswith(input_text):
+                tree.insert("", "end", values=(name,))
+
+        # Paint the alternating row and locked effect
+        table.paint_alternating_rows()
