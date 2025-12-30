@@ -13,21 +13,27 @@ BTN_BG = "#F0F0F0"
 BTN_HOVER = "#DADADA"
 BORDER_COLOR = "#C0C0C0"
 TEXT_COLOR = "#1F2937"
-
+# ------------------------------------------------------------
 
 class GUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("Lockr")
+        self.build_ui()
 
+    def build_ui(self):
         # Construct GUI
+        self.configure_window()
         self.create_frames()
         self.configure_frames()
         self.create_widgets()
 
+    def configure_window(self):
+        # Specify window title
+        self.root.title("Lockr")
+
         # Grab Screen Size
-        screen_width = int(root.winfo_screenwidth() * .50)
-        screen_height = int(root.winfo_screenheight() * .80)
+        screen_width = int(self.root.winfo_screenwidth() * .50)
+        screen_height = int(self.root.winfo_screenheight() * .80)
 
         # Specify how big the window is
         self.root.geometry(f"{screen_width}x{screen_height}")
@@ -94,7 +100,12 @@ class GUI:
         self.process_table_frame.columnconfigure(1, weight=0)
 
     def create_widgets(self):
+        self.create_labels()
+        self.create_process_table()
+        self.create_search_bar()
+        self.create_buttons()
 
+    def create_labels(self):
         # Create selected_process_status_label
         self.selected_process_status_label = ctk.CTkLabel(
             self.selected_process_status_frame,
@@ -112,14 +123,7 @@ class GUI:
         )
         self.selected_process_name_label.grid(column=1, row=1)
 
-        # Create search_bar_entry
-        self.search_var = ctk.StringVar()
-        self.search_bar_entry = ctk.CTkEntry(self.search_bar_frame, placeholder_text="Enter process name here",
-                                             font=("Helvetica", 14), border_width=1, border_color=BORDER_COLOR,
-                                             text_color=TEXT_COLOR, textvariable=self.search_var)
-        self.search_bar_entry.pack(fill="x", ipadx=10, ipady=5)
-        self.search_var.trace_add("write", self.handle_search_bar_input)
-
+    def create_process_table(self):
         # Create process_table
         self.process_table = ProcessTable.ProcessTable(self.process_table_frame, self.selected_process_name_label,
                                                        self.selected_process_status_label)
@@ -131,6 +135,16 @@ class GUI:
         self.process_table.treeview_table.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")
 
+    def create_search_bar(self):
+        # Create search_bar_entry
+        self.search_var = ctk.StringVar()
+        self.search_bar_entry = ctk.CTkEntry(self.search_bar_frame, placeholder_text="Enter process name here",
+                                             font=("Helvetica", 14), border_width=1, border_color=BORDER_COLOR,
+                                             text_color=TEXT_COLOR, textvariable=self.search_var)
+        self.search_bar_entry.pack(fill="x", ipadx=10, ipady=5)
+        self.search_var.trace_add("write", self.handle_search_bar_input)
+
+    def create_buttons(self):
         # Create refresh_table_button
         self.refresh_table_button = ctk.CTkButton(self.refresh_table_frame,
                                                   text="Refresh Table",
@@ -149,31 +163,31 @@ class GUI:
         self.lock_buttons_list = []
 
         # Create one_hour_lock_button
-        self.one_hour_lock_button = self.create_lock_button("1 Hour", command=lambda: utils.toggle_lock_buttons(
+        self.one_hour_lock_button = self.create_lock_button("1 Hour", BTN_HOVER, command=lambda: utils.toggle_lock_buttons(
             self.one_hour_lock_button, self.lock_buttons_list))
         self.one_hour_lock_button.pack(fill="x", pady=10)
         self.lock_buttons_list.append(self.one_hour_lock_button)
 
         # Create two_hour_lock_button
-        self.two_hour_lock_button = self.create_lock_button("2 Hours", command=lambda: utils.toggle_lock_buttons(
+        self.two_hour_lock_button = self.create_lock_button("2 Hours", BTN_BG, command=lambda: utils.toggle_lock_buttons(
             self.two_hour_lock_button, self.lock_buttons_list))
         self.two_hour_lock_button.pack(fill="x", pady=10)
         self.lock_buttons_list.append(self.two_hour_lock_button)
 
         # Create three_hour_lock_button
-        self.three_hour_lock_button = self.create_lock_button("3 Hours", command=lambda: utils.toggle_lock_buttons(
+        self.three_hour_lock_button = self.create_lock_button("3 Hours", BTN_BG, command=lambda: utils.toggle_lock_buttons(
             self.three_hour_lock_button, self.lock_buttons_list))
         self.three_hour_lock_button.pack(fill="x", pady=10)
         self.lock_buttons_list.append(self.three_hour_lock_button)
 
         # Create eight_hour_lock_button
-        self.eight_hour_lock_button = self.create_lock_button("8 Hours", command=lambda: utils.toggle_lock_buttons(
+        self.eight_hour_lock_button = self.create_lock_button("8 Hours", BTN_BG, command=lambda: utils.toggle_lock_buttons(
             self.eight_hour_lock_button, self.lock_buttons_list))
         self.eight_hour_lock_button.pack(fill="x", pady=10)
         self.lock_buttons_list.append(self.eight_hour_lock_button)
 
         # Create twentyfour_hour_lock_button
-        self.twentyfour_hour_lock_button = self.create_lock_button("24 Hours",
+        self.twentyfour_hour_lock_button = self.create_lock_button("24 Hours", BTN_BG,
                                                                    command=lambda: utils.toggle_lock_buttons(
                                                                        self.twentyfour_hour_lock_button,
                                                                        self.lock_buttons_list))
@@ -215,12 +229,12 @@ class GUI:
         # Paint the alternating row and locked effect
         table.paint_alternating_rows()
 
-    def create_lock_button(self, text, command):
+    def create_lock_button(self, text, fg_color, command):
         btn = ctk.CTkButton(
             self.lock_buttons_frame,
             text=text,
             text_color=TEXT_COLOR,
-            fg_color=BTN_BG,
+            fg_color=fg_color,
             hover_color=BTN_HOVER,
             border_width=1,
             border_color=BORDER_COLOR,

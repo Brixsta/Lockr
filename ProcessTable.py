@@ -23,7 +23,7 @@ class ProcessTable:
             text=f"Process Name: {self.selected_process.name}"
         )
 
-    def populate_processes(self, treeview_table):
+    def populate_processes(self):
         # Gather processes excluding certain names
         for proc in psutil.process_iter(['pid', 'name']):
             if len(proc.info['name']) and proc.info['name'].lower() not in {name.lower() for name in excluded.OS}:
@@ -31,7 +31,7 @@ class ProcessTable:
                 name = proc.info['name']
                 status = "RUNNING"
                 lock_duration = 0
-                new_process = Process(name, status, lock_duration, self.names_of_locked_processes, treeview_table)
+                new_process = Process(name, status, lock_duration, self.names_of_locked_processes, self.treeview_table)
 
                 # Only add a process if it hasn't been seen before
                 if name in self.processes:
@@ -68,18 +68,9 @@ class ProcessTable:
         tree.focus(row_id)
         tree.see(row_id)
 
-        # Update text values of selected_process_name_label
-        self.selected_process_name_label.configure(text=f"Process Name: {process.name}")
+        self.update_selected_process_ui()
 
-        # Update selected_process_status_label text
-        self.selected_process_status_label.configure(text=f"{process.status}")
 
-        # Update text color of selected_process_status_label
-        if (process.status == "LOCKED"):
-            self.selected_process_status_label.configure(text_color="red",
-                                                         text=f"{process.status} UNTIL: {process.lock_expiration}")
-        else:
-            self.selected_process_status_label.configure(text_color="green")
 
     def create_table(self):
 
@@ -89,7 +80,7 @@ class ProcessTable:
         self.treeview_table.heading("name", text="Process Name")
 
         # Generate treeview_table data
-        self.populate_processes(self.treeview_table)
+        self.populate_processes()
 
         # Insert table rows
         for name in sorted(self.processes.keys(), key=str.lower):
@@ -149,6 +140,26 @@ class ProcessTable:
             font=("Helvetica", 12),
             relief="raised"
         )
+
+    def update_selected_process_ui(self):
+        tree = self.treeview_table
+        first_process_name = tree.item(tree.get_children()[0], "values")[0]
+        row_id = self.find_row_by_text(first_process_name)
+        process = self.processes[first_process_name]
+
+
+        # Update text values of selected_process_name_label
+        self.selected_process_name_label.configure(text=f"Process Name: {process.name}")
+
+        # Update selected_process_status_label text
+        self.selected_process_status_label.configure(text=f"{process.status}")
+
+        # Update text color of selected_process_status_label
+        if (process.status == "LOCKED"):
+            self.selected_process_status_label.configure(text_color="red",
+                                                         text=f"{process.status} UNTIL: {process.lock_expiration}")
+        else:
+            self.selected_process_status_label.configure(text_color="green")
 
     def paint_alternating_rows(self):
         tree = self.treeview_table

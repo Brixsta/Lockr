@@ -1,7 +1,6 @@
 import psutil
 import tkinter.messagebox as messagebox
 from datetime import datetime
-import GUI
 
 
 # ----------------- Button toggle helpers -----------------
@@ -119,7 +118,7 @@ def refresh_table(process_table, processes):
     process_table.clear_unlocked_processes()
 
     # Repopulate current processes, while including the locked processes
-    process_table.populate_processes(tree)
+    process_table.populate_processes()
 
     # Insert table rows check if they are locked
     for name in sorted(processes.keys(), key=str.lower):
