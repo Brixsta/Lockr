@@ -49,6 +49,11 @@ class ProcessTable:
     def make_first_row_selected(self):
         # Grab first process after alphabetically sorting
         tree = self.treeview_table
+
+        # If there are no rows then return
+        if not tree.get_children():
+            return
+
         first_process_name = tree.item(tree.get_children()[0], "values")[0]
         row_id = self.find_row_by_text(first_process_name)
         process = self.processes[first_process_name]
@@ -57,6 +62,11 @@ class ProcessTable:
         self.selected_process = process
         tree.item(row_id, tags=("SELECTED",))
         tree.selection_set(row_id)
+
+        # Explicitly select row and focus it
+        tree.selection_set(row_id)
+        tree.focus(row_id)
+        tree.see(row_id)
 
         # Update text values of selected_process_name_label
         self.selected_process_name_label.configure(text=f"Process Name: {process.name}")
@@ -150,6 +160,8 @@ class ProcessTable:
 
             if process.status == "LOCKED" or process.name in self.names_of_locked_processes:
                 tree.item(row_id, tags=("LOCKED",))
+            elif name == self.selected_process.name:
+                tree.item(row_id, tags=("SELECTED",))
             else:
                 tree.item(row_id, tags=(tag,))
 
@@ -164,6 +176,7 @@ class ProcessTable:
         return None
 
     def handle_select(self, event):
+
         selected_row = event.widget.focus()
         if not selected_row:  # Nothing selected
             return
@@ -193,3 +206,5 @@ class ProcessTable:
                                                          text=f"{process.status} UNTIL: {process.lock_expiration}")
         else:
             self.selected_process_status_label.configure(text_color="green")
+
+        self.paint_alternating_rows()

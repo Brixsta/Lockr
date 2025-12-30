@@ -107,6 +107,7 @@ def check_selected_process_status_label(process_table):
     if curr.status == "RUNNING":
         process_table.selected_process_status_label.configure(text="RUNNING", text_color="green")
 
+
 def refresh_table(process_table, processes):
     tree = process_table.treeview_table
 
@@ -128,5 +129,14 @@ def refresh_table(process_table, processes):
             values=(name,)
         )
 
-    process_table.make_first_row_selected()
+        # Set row colors for running and locked
+        tree.tag_configure("SELECTED", background="#3B82F6", foreground="white")
+        tree.tag_configure("ODD", background="#F0F0F0")
+        tree.tag_configure("EVEN", background="#FFFFFF")
+        tree.tag_configure(
+            "LOCKED",
+            background="#FF0000"
+        )
+
     process_table.paint_alternating_rows()
+    process_table.make_first_row_selected()

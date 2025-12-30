@@ -23,10 +23,6 @@ class GUI:
         self.root.geometry(f"{screen_width}x{screen_height}")
 
     def create_frames(self):
-        # Create header_frame
-        self.header_frame = tk.Frame(self.root, bg="black")
-        self.header_frame.pack(fill="x")
-
         # Create main_frame
         self.main_frame = tk.Frame(self.root, bg="#EAEAEA")
         self.main_frame.pack(fill="both", expand=True)
@@ -88,15 +84,6 @@ class GUI:
         self.process_table_frame.columnconfigure(1, weight=0)
 
     def create_widgets(self):
-
-        # Create logo_label
-        self.header_label = ctk.CTkLabel(
-            self.header_frame,
-            text="Lockr",
-            font=("Helvetica", 16, "bold"),
-            text_color="white",
-        )
-        self.header_label.pack(pady=5, padx=10, side="left")
 
         # Create selected_process_status_label
         self.selected_process_status_label = ctk.CTkLabel(
@@ -266,5 +253,9 @@ class GUI:
             if name.lower().startswith(input_text):
                 tree.insert("", "end", values=(name,))
 
+        self.process_table.make_first_row_selected()
+
         # Paint the alternating row and locked effect
         table.paint_alternating_rows()
+
+
